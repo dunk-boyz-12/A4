@@ -8,6 +8,8 @@
 #include <iostream>
 #include <cmath>
 #include <fstream>
+#include <sys/stat.h>
+#include "customErrorClass.h"
 
 //40 indexes
 // 0
@@ -22,6 +24,7 @@ void findIndexes(int*,int*,int,int);
 int main(int argc, const char * argv[]) {
     
     const char* inputFileName = argv[1];
+    struct stat fileInfo;
     std::ifstream inputFile;
     std::fstream outputBinaryFile;
     int totalNums = 2000000;
@@ -30,101 +33,109 @@ int main(int argc, const char * argv[]) {
     int myNumbers[totalNums];
     int tempNum;
     
-    //open file and populate array
-    inputFile.open(inputFileName);
-    if(!inputFile.is_open()){
-        std::cout << "File could not be opened sorry." << std::endl;
+    //check that input file has data
+    int inputFileSize = stat(inputFileName, &fileInfo);
+    if(fileInfo.st_size == 0){
+        throw MyException("Input file is empty.");
     } else {
-        //populate array
-        for(int index = 0; index < totalNums; index++){
-            inputFile >> tempNum;
-            myNumbers[index] = tempNum;
+        //open file and populate array
+        inputFile.open(inputFileName);
+        //make sure opened correctly
+        if(!inputFile.is_open()){
+            throw MyException("File could not be opened sorry.");
+        } else {
+            //populate array
+            for(int index = 0; index < totalNums; index++){
+                inputFile >> tempNum;
+                myNumbers[index] = tempNum;
+            }
+            //close file
+            inputFile.close();
         }
+        
+        //sort array
+        mergeSort(myNumbers, 0, totalNums-1);
+        
+        //find indexes
+        myIndexes = new int[totalNums/increment]; //array to hold in
+        findIndexes(myNumbers,myIndexes,increment,totalNums);
+        
+        //open and write to binary file
+        outputBinaryFile.open("sortedBinaryData.dat", std::ios::in|std::ios::out|std::ios::binary); //open for binary, input and output
+        outputBinaryFile.write((char*)myNumbers, sizeof(int)*totalNums);
+        
+        /* ############################   OUTPUT   ############################ */
+        
+        //get output from binary file using indexes
+        int numOffset = 4;
+        int desiredIndex;
+        int jump;
+        int outputNumber = 0;
+        
+        //102nd num from 1st index (50,101st number)
+        outputBinaryFile.seekg(std::ios::beg); //reset file pointer to beg
+        desiredIndex = 1;
+        //find where to set file pointer
+        jump = ((desiredIndex*increment) + 102) * numOffset;
+        //move file pointer
+        outputBinaryFile.seekg(std::ios::beg+jump);
+        //read into variable
+        outputBinaryFile.read((char*)&outputNumber, sizeof(int));
+        //print to screen
+        std::cout << "102nd number from 1st index: " <<outputNumber << std::endl;
+        
+        //31st num from 10th index (500,0031st number)
+        outputBinaryFile.seekg(std::ios::beg); //reset file pointer to beg
+        desiredIndex = 10;
+        //find where to set file pointer
+        jump = ((desiredIndex*increment) + 31) * numOffset;
+        //move file pointer
+        outputBinaryFile.seekg(std::ios::beg+jump);
+        //read into variable
+        outputBinaryFile.read((char*)&outputNumber, sizeof(int));
+        //print to screen
+        std::cout << "31st number from 10th index: " <<outputNumber << std::endl;
+        
+        //3,105th num from 34th index (1,703,105th number)
+        outputBinaryFile.seekg(std::ios::beg); //reset file pointer to beg
+        desiredIndex = 34;
+        //find where to set file pointer
+        jump = ((desiredIndex*increment) + 3105) * numOffset;
+        //move file pointer
+        outputBinaryFile.seekg(std::ios::beg+jump);
+        //read into variable
+        outputBinaryFile.read((char*)&outputNumber, sizeof(int));
+        //print to screen
+        std::cout << "3,105st number from 34th index: " <<outputNumber << std::endl;
+        
+        //431st num from 21st index (1,050,431st number)
+        outputBinaryFile.seekg(std::ios::beg); //reset file pointer to beg
+        desiredIndex = 21;
+        //find where to set file pointer
+        jump = ((desiredIndex*increment) + 431) * numOffset;
+        //move file pointer
+        outputBinaryFile.seekg(std::ios::beg+jump);
+        //read into variable
+        outputBinaryFile.read((char*)&outputNumber, sizeof(int));
+        //print to screen
+        std::cout << "431st number from 21st index: " <<outputNumber << std::endl;
+        
+        //42,971st num from 18th index (50,101st number)
+        outputBinaryFile.seekg(std::ios::beg); //reset file pointer to beg
+        desiredIndex = 18;
+        //find where to set file pointer
+        jump = ((desiredIndex*increment) + 42971) * numOffset;
+        //move file pointer
+        outputBinaryFile.seekg(std::ios::beg+jump);
+        //read into variable
+        outputBinaryFile.read((char*)&outputNumber, sizeof(int));
+        //print to screen
+        std::cout << "42,971st number from 18th index: " <<outputNumber << std::endl;
+        
         //close file
-        inputFile.close();
+        outputBinaryFile.close();
     }
     
-    //sort array
-    mergeSort(myNumbers, 0, totalNums-1);
-    
-    //find indexes
-    myIndexes = new int[totalNums/increment]; //array to hold in
-    findIndexes(myNumbers,myIndexes,increment,totalNums);
-    
-    //open and write to binary file
-    outputBinaryFile.open("sortedBinaryData.dat", std::ios::in|std::ios::out|std::ios::binary); //open for binary, input and output
-    outputBinaryFile.write((char*)myNumbers, sizeof(int)*totalNums);
-    
-    /* ############################   OUTPUT   ############################ */
-    
-    //get output from binary file using indexes
-    //int numOffset = 4;
-    int desiredIndex;
-    int jump;
-    int outputNumber = 0;
-    
-    //102nd num from 1st index (50,101st number)
-    outputBinaryFile.seekg(std::ios::beg); //reset file pointer to beg
-    desiredIndex = 1;
-    //find where to set file pointer
-    jump = (desiredIndex*increment) + 102;
-    //move file pointer
-    outputBinaryFile.seekg(std::ios::beg+jump);
-    //read into variable
-    outputBinaryFile.read((char*)outputNumber, sizeof(int));
-    //print to screen
-    std::cout << "102nd number from 1st index: " <<outputNumber << std::endl;
-    
-    //31st num from 10th index (500,0031st number)
-    outputBinaryFile.seekg(std::ios::beg); //reset file pointer to beg
-    desiredIndex = 10;
-    //find where to set file pointer
-    jump = (desiredIndex*increment) + 31;
-    //move file pointer
-    outputBinaryFile.seekg(std::ios::beg+jump);
-    //read into variable
-    outputBinaryFile.read((char*)&outputNumber, sizeof(int));
-    //print to screen
-    std::cout << "31st number from 10th index: " <<outputNumber << std::endl;
-    
-    //3,105th num from 34th index (1,703,105th number)
-    outputBinaryFile.seekg(std::ios::beg); //reset file pointer to beg
-    desiredIndex = 34;
-    //find where to set file pointer
-    jump = (desiredIndex*increment) + 3105;
-    //move file pointer
-    outputBinaryFile.seekg(std::ios::beg+jump);
-    //read into variable
-    outputBinaryFile.read((char*)&outputNumber, sizeof(int));
-    //print to screen
-    std::cout << "3105st number from 34th index: " <<outputNumber << std::endl;
-    
-    //431st num from 21st index (1,050,431st number)
-    outputBinaryFile.seekg(std::ios::beg); //reset file pointer to beg
-    desiredIndex = 21;
-    //find where to set file pointer
-    jump = (desiredIndex*increment) + 431;
-    //move file pointer
-    outputBinaryFile.seekg(std::ios::beg+jump);
-    //read into variable
-    outputBinaryFile.read((char*)&outputNumber, sizeof(int));
-    //print to screen
-    std::cout << "431st number from 21st index: " <<outputNumber << std::endl;
-    
-    //42,971st num from 18th index (50,101st number)
-    outputBinaryFile.seekg(std::ios::beg); //reset file pointer to beg
-    desiredIndex = 18;
-    //find where to set file pointer
-    jump = (desiredIndex*increment) + 42971;
-    //move file pointer
-    outputBinaryFile.seekg(std::ios::beg+jump);
-    //read into variable
-    outputBinaryFile.read((char*)&outputNumber, sizeof(int));
-    //print to screen
-    std::cout << "102nd number from 1st index: " <<outputNumber << std::endl;
-    
-    //close file
-    outputBinaryFile.close();
 }
 
 /* ############################   FUNCTIONS   ############################ */
@@ -197,7 +208,7 @@ void merge(int* inArray, int left, int middle, int right) {
 
 /*
  **    Author: Nick Buras
- **    Function Purpose: find indexes according to assignment requirements, 50,000 in size
+ **    Function Purpose: find indexes according to assignment requirements, 50,000 in size for each
  **
  **    Function Output: populate index array to reference for output
  **    Side Effects: index array is populated
@@ -215,7 +226,7 @@ void findIndexes(int* myArray, int* indexArray, int increment, int size) {
             indexArray[index] = ctr;
             //increment index array index
             index++;
-            //increment the increment value
+            //increment the increment value for the next index value
             inc += increment;
         }
     }
