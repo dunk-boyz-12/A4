@@ -62,7 +62,7 @@ int main(int argc, const char * argv[]) {
     //int numOffset = 4;
     int desiredIndex;
     int jump;
-    int outputNumber;
+    int outputNumber = 0;
     
     //102nd num from 1st index (50,101st number)
     outputBinaryFile.seekg(std::ios::beg); //reset file pointer to beg
