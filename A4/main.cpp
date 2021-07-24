@@ -54,7 +54,6 @@ int main(int argc, const char * argv[]) {
     //open and write to binary file
     outputBinaryFile.open("sortedBinaryData.dat", std::ios::in|std::ios::out|std::ios::binary); //open for binary, input and output
     outputBinaryFile.write((char*)myNumbers, sizeof(int)*totalNums);
-    outputBinaryFile.close();
     
     /* ############################   OUTPUT   ############################ */
     
@@ -123,6 +122,9 @@ int main(int argc, const char * argv[]) {
     outputBinaryFile.read((char*)&outputNumber, sizeof(int));
     //print to screen
     std::cout << "102nd number from 1st index: " <<outputNumber << std::endl;
+    
+    //close file
+    outputBinaryFile.close();
 }
 
 /* ############################   FUNCTIONS   ############################ */
