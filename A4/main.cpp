@@ -71,7 +71,7 @@ int main(int argc, const char * argv[]) {
     //move file pointer
     outputBinaryFile.seekg(std::ios::beg+jump);
     //read into variable
-    outputBinaryFile.read((char*)&outputNumber, sizeof(int));
+    outputBinaryFile.read((char*)outputNumber, sizeof(int));
     //print to screen
     std::cout << "102nd number from 1st index: " <<outputNumber << std::endl;
     
